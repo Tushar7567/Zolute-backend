@@ -3,7 +3,8 @@ const dotenv = require("dotenv");
 dotenv.config('./.env');
 
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.token;
+  token = req.headers.authorization.replace("Bearer ", "");
+  const authHeader = token;
   console.log(authHeader);
   if (authHeader) {
     const token = authHeader;
@@ -30,7 +31,7 @@ const verifyTokenAndAuthorization = (req, res, next) => {
 
 const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    // console.log(req.data);
+    console.log(req.user);
     if (req.user.isAdmin) {
       next();
     } else {

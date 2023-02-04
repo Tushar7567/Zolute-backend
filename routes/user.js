@@ -1,5 +1,6 @@
 const User = require("../model/User");
-const bcrypt = require("bcrypt")
+const Name = require("../model/Name");
+// const bcrypt = require("bcrypt")
 
 
 const {
@@ -11,20 +12,33 @@ const {
 const router = require("express").Router();
 
 //CREATE
-// go to auth.js line no. 7 
+router.post("/", verifyTokenAndAuthorization, async (req, res) => {
+  try {
+    console.log(req.body.name)
+    const newUser = new Name({
+      name: req.body.name
+    });
+    const savedUser = await newUser.save();
+    res.status(200).json(savedUser);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}); 
 
 
 //UPDATE
 router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
-  if (req.body.password) {
-    req.body.password = await bcrypt.hash(req.body.password, 10)
-  }
+  // if (req.body.password) {
+  //   req.body.password = await bcrypt.hash(req.body.password, 10)
+  // }
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await Name.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body,
+        $set: {
+          name: req.body.name
+        },
       },
       { new: true }
     );
@@ -37,36 +51,26 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
 //DELETE
 router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.status(200).json("User has been deleted...");
+    await Name.findByIdAndDelete(req.params.id);
+    res.status(200).json("Name has been deleted...");
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
 //GET USER
-router.get("/find/:id", verifyTokenAndAdmin, async (req, res) => {
+router.get("/find", verifyTokenAndAdmin, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    const { password, ...others } = user._doc;
-    res.status(200).json(others);
+    const user = await Name.find();
+    // const { password, ...others } = user._doc;
+    // res.status(200).json(others);
+    res.status(200).json(user);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-//GET ALL USER
-router.get("/", verifyTokenAndAdmin, async (req, res) => {
-  const query = req.query.new;
-  try {
-    const users = query
-      ? await User.find().sort({ _id: -1 }).limit(5)
-      : await User.find();
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+
 
 
 

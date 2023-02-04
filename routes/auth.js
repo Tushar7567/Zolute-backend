@@ -7,13 +7,15 @@ const jwt = require("jsonwebtoken");
 //REGISTER
 router.post("/register", async (req, res) => {
   const hashPass = await bcrypt.hash(req.body.password, 10)
+  console.log(req.body)
   const newUser = new User({
     username: req.body.username,
     email: req.body.email,
-    password: hashPass
+    password: hashPass,
   });
 
   try {
+    console.log("here")
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } 
@@ -26,8 +28,8 @@ router.post("/register", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    console.log(req.body.username)
-    const user = await User.findOne({ email: req.body.username });
+    console.log(req.body.email)
+    const user = await User.findOne({ email: req.body.email });
     console.log(user)
 
     if(!user){ 
